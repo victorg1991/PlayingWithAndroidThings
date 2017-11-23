@@ -29,7 +29,6 @@ import java.io.IOException;
  */
 public class MainActivity extends Activity {
 
-	private Pwm pwm;
 	private Servo servo;
 
 	@Override
@@ -40,23 +39,21 @@ public class MainActivity extends Activity {
 		PeripheralManagerService service = new PeripheralManagerService();
 
 		try {
-			pwm = service.openPwm("PWM1");
+			servo = new Servo("PWM1");
 
-			pwm.setPwmFrequencyHz(50.0);
+			servo.setAngleRange(-90, 90);
+			servo.setPulseDurationRange(1, 2);
+			servo.setAngle(0);
 
-			//0
-			pwm.setPwmDutyCycle(7.5);
-			pwm.setEnabled(true);
-
-			SystemClock.sleep(1000);
-
-			//-90
-			pwm.setPwmDutyCycle(3.0);
+			servo.setEnabled(true);
 
 			SystemClock.sleep(1000);
 
-			//90
-			pwm.setPwmDutyCycle(11);
+			servo.setAngle(-90);
+
+			SystemClock.sleep(1000);
+
+			servo.setAngle(90);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -68,12 +65,12 @@ public class MainActivity extends Activity {
 		super.onDestroy();
 
 		try {
-			pwm.close();
+			servo.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		finally {
-			pwm = null;
+			servo = null;
 		}
 	}
 }
