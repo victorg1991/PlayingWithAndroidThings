@@ -28,9 +28,60 @@ import java.io.IOException;
  */
 public class MainActivity extends Activity {
 
+	private Gpio gpio;
+	private Handler handler = new Handler();
+	private static final String LED = "BCM6";
+
+	private Runnable blinkingRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (gpio == null) {
+				return;
+			}
+
+			try {
+				gpio.setValue(!gpio.getValue());
+
+				handler.postDelayed(blinkingRunnable, 1000);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		PeripheralManagerService service = new PeripheralManagerService();
+
+		try {
+			gpio = service.openGpio(LED);
+			gpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
+
+			handler.post(blinkingRunnable);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		handler.removeCallbacks(blinkingRunnable);
+
+		if (gpio == null) {
+			return;
+		}
+
+		try {
+			gpio.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			gpio = null;
+		}
 	}
 }
