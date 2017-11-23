@@ -27,9 +27,10 @@ import java.io.IOException;
  *
  * @see <a href="https://github.com/androidthings/contrib-drivers#readme">https://github.com/androidthings/contrib-drivers#readme</a>
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements HTTPServer.OnCatapultActionsListener {
 
 	private Servo servo;
+	private HTTPServer httpServer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,19 +43,10 @@ public class MainActivity extends Activity {
 			servo = new Servo("PWM1");
 
 			servo.setAngleRange(-90, 90);
-			servo.setPulseDurationRange(1, 2);
-			servo.setAngle(0);
+			servo.setPulseDurationRange(1, 2.2);
 
-			servo.setEnabled(true);
-
-			SystemClock.sleep(1000);
-
-			servo.setAngle(-90);
-
-			SystemClock.sleep(1000);
-
-			servo.setAngle(90);
-
+			httpServer = new HTTPServer(this);
+			httpServer.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -66,11 +58,32 @@ public class MainActivity extends Activity {
 
 		try {
 			servo.close();
+			httpServer.closeAllConnections();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		finally {
 			servo = null;
+		}
+	}
+
+	@Override
+	public void onFire() {
+		try {
+			servo.setAngle(90);
+			servo.setEnabled(true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onRecharge() {
+		try {
+			servo.setAngle(-10);
+			servo.setEnabled(true);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
