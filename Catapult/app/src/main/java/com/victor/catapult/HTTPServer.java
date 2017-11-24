@@ -39,9 +39,9 @@ public class HTTPServer extends NanoHTTPD {
 			+ "  function fire() { window.location = '?fire=true'; }"
 			+ "  function recharge() { window.location = '?recharge=true'; }"
 			+ "</script></head>"
-			+ "<body>"
-			+ "  <button style=\"width: 40%; height: 100%; font-size: 4em;\" onclick=\"fire();\">FIRE!</button>"
-			+ "  <button style=\"width: 40%; height: 100%; font-size: 4em;\" onclick=\"recharge();\">Recharge</button>"
+			+ "<body style=\"display:flex\">"
+			+ "  <button style=\"flex: 50%; height: 100%; font-size: 4em;\" onclick=\"fire();\">FIRE!</button>"
+			+ "  <button style=\"flex: 50%; height: 100%; font-size: 4em;\" onclick=\"recharge();\">Recharge</button>"
 			+ "</body></html>";
 
 		return newFixedLengthResponse(html);
