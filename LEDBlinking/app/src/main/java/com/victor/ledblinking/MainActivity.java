@@ -29,20 +29,13 @@ public class MainActivity extends Activity {
 			PeripheralManagerService service = new PeripheralManagerService();
 			led = service.openGpio(LED_ADDRESS);
 			led.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
-		} catch (IOException e) {
-			Log.e(APP, e.getMessage(), e);
-		}
 
-		try {
-			this.driver = new ButtonInputDriver(
-                "BCM21",
-                Button.LogicState.PRESSED_WHEN_LOW,
-                KeyEvent.KEYCODE_SPACE
-            );
+			driver = new ButtonInputDriver("BCM21", Button.LogicState.PRESSED_WHEN_LOW,
+					KeyEvent.KEYCODE_SPACE);
 
 			driver.register();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(APP, e.getMessage(), e);
 		}
 	}
 
@@ -50,22 +43,18 @@ public class MainActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		handler.removeCallbacks(blinkingRunnable);
-
 		if (led == null) {
 			return;
 		}
 
 		try {
 			led.close();
+			driver.unregister();
 		} catch (IOException e) {
 			Log.e(APP, e.getMessage(), e);
 		} finally {
 			led = null;
-		}
-
-		if (driver != null) {
-			driver.unregister();
+			driver = null;
 		}
 	}
 
@@ -76,7 +65,7 @@ public class MainActivity extends Activity {
 		try {
 			this.led.setValue(true);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(APP, "Error setting the value to true" , e);
 		}
 
 		return true;
@@ -89,26 +78,9 @@ public class MainActivity extends Activity {
 		try {
 			this.led.setValue(false);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(APP, "Error setting the value to false" , e);
 		}
 
 		return true;
 	}
-
-	private Runnable blinkingRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (led == null) {
-				return;
-			}
-
-			try {
-				led.setValue(!led.getValue());
-
-				handler.postDelayed(blinkingRunnable, 1000);
-			} catch (IOException e) {
-				Log.e(APP, e.getMessage(), e);
-			}
-		}
-	};
 }
